@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ambulance System</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--secondary);
+        }
+        
+        /* Main Content */
+        main {
+            padding: 2rem 0;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        /* Call Processing */
+        .call-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .transcript-container {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            min-height: 150px;
+            margin-bottom: 1rem;
+        }
+        
+        /* Condition Classification */
+        .classification-result {
+            background: #e8f4fc;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .condition-badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .critical {
+            background: #ffece8;
+            color: var(--danger);
+        }
+        
+        .serious {
+            background: #fff5e6;
+            color: var(--warning);
+        }
+        
+        .moderate {
+            background: #e6f7ff;
+            color: var(--secondary);
+        }
+        
+        /* Priority Queue */
+        .queue-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .queue-table th, .queue-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .queue-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .queue-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .priority-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .priority-1 {
+            background: var(--danger);
+        }
+        
+        .priority-2 {
+            background: var(--warning);
+        }
+        
+        .priority-3 {
+            background: var(--secondary);
+        }
+        
+        .priority-4 {
+            background: var(--success);
+        }
+        
+        /* Ambulance Status */
+        .ambulance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .ambulance-card {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        
+        .ambulance-status {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .status-available {
+            background: #e6f7ff;
+            color: var(--secondary);
+        }
+        
+        .status-dispatched {
+            background: #fff5e6;
+            color: var(--warning);
+        }
+        
+        .status-busy {
+            background: #ffece8;
+            color: var(--danger);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            nav ul li {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">Smart Ambulance System</div>
+            <nav>
+                <ul>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#call-processing">Call Processing</a></li>
+                    <li><a href="#priority-queue">Priority Queue</a></li>
+                    <li><a href="#ambulance-status">Ambulance Status</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section">
+            <h2 class="section-title">System Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Active Calls</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Pending Dispatch</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">15</div>
+                    <div class="stat-label">Ambulances Available</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Critical Cases</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call Processing Section -->
+        <section id="call-processing" class="section">
+            <h2 class="section-title">Call Processing</h2>
+            <div class="call-controls">
+                <button class="btn btn-primary" id="startRecording">Start Recording</button>
+                <button class="btn btn-danger" id="stopRecording" disabled>Stop Recording</button>
+                <button class="btn btn-success" id="processAudio" disabled>Process Audio</button>
+            </div>
+            <div class="transcript-container" id="transcript">
+                Call transcript will appear here...
+            </div>
+            <div class="classification-result" id="classificationResult">
+                <h3>Condition Classification</h3>
+                <p>Condition: <span class="condition-badge critical">Heart Attack</span></p>
+                <p>Priority: <span class="condition-badge critical">Critical</span></p>
+                <p>Recommended Action: Dispatch ambulance immediately with cardiac equipment</p>
+            </div>
+        </section>
+
+        <!-- Priority Queue Section -->
+        <section id="priority-queue" class="section">
+            <h2 class="section-title">Patient Priority Queue</h2>
+            <table class="queue-table">
+                <thead>
+                    <tr>
+                        <th>Priority</th>
+                        <th>Patient ID</th>
+                        <th>Condition</th>
+                        <th>Location</th>
+                        <th>Wait Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-indicator priority-1"></span> Critical</td>
+                        <td>P-1023</td>
+                        <td>Heart Attack</td>
+                        <td>123 Main St</td>
+                        <td>5 min</td>
+                        <td><button class="btn btn-primary">Dispatch</button></td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-indicator priority-1"></span> Critical</td>
+                        <td>P-1015</td>
+                        <td>Severe Trauma</td>
+                        <td>456 Oak Ave</td>
+                        <td>8 min</td>
+                        <td><button class="btn btn-primary">Dispatch</button></td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-indicator priority-2"></span> Serious</td>
+                        <td>P-1018</td>
+                        <td>Stroke</td>
+                        <td>789 Pine Rd</td>
+                        <td>10 min</td>
+                        <td><button class="btn btn-primary">Dispatch</button></td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-indicator priority-3"></span> Moderate</td>
+                        <td>P-1021</td>
+                        <td>Asthma Attack</td>
+                        <td>321 Elm St</td>
+                        <td>15 min</td>
+                        <td><button class="btn btn-primary">Dispatch</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Ambulance Status Section -->
+        <section id="ambulance-status" class="section">
+            <h2 class="section-title">Ambulance Status</h2>
+            <div class="ambulance-grid">
+                <div class="ambulance-card">
+                    <h3>Ambulance A-12</h3>
+                    <p>Team: Dr. Smith, Paramedic Jones</p>
+                    <p>Equipment: Full cardiac suite</p>
+                    <span class="ambulance-status status-available">Available</span>
+                </div>
+                <div class="ambulance-card">
+                    <h3>Ambulance A-15</h3>
+                    <p>Team: Dr. Brown, Paramedic Wilson</p>
+                    <p>Equipment: Basic life support</p>
+                    <span class="ambulance-status status-dispatched">Dispatched</span>
+                </div>
+                <div class="ambulance-card">
+                    <h3>Ambulance A-18</h3>
+                    <p>Team: Dr. Taylor, Paramedic Clark</p>
+                    <p>Equipment: Trauma specialist</p>
+                    <span class="ambulance-status status-available">Available</span>
+                </div>
+                <div class="ambulance-card">
+                    <h3>Ambulance A-22</h3>
+                    <p>Team: Dr. Lee, Paramedic Martinez</p>
+                    <p>Equipment: Pediatric specialist</p>
+                    <span class="ambulance-status status-busy">En route to hospital</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Smart Ambulance System &copy; 2023. Designed for emergency medical dispatch.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Basic functionality for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            const startBtn = document.getElementById('startRecording');
+            const stopBtn = document.getElementById('stopRecording');
+            const processBtn = document.getElementById('processAudio');
+            const transcript = document.getElementById('transcript');
+            const classificationResult = document.getElementById('classificationResult');
+            
+            startBtn.addEventListener('click', function() {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                transcript.textContent = "Listening... (simulated call recording)";
+                
+                // Simulate receiving a call transcript after 3 seconds
+                setTimeout(() => {
+                    transcript.textContent = "Patient says: I'm having severe chest pain and difficulty breathing. The pain is radiating to my left arm.";
+                    processBtn.disabled = false;
+                }, 3000);
+            });
+            
+            stopBtn.addEventListener('click', function() {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                transcript.textContent = "Call recording stopped.";
+            });
+            
+            processBtn.addEventListener('click', function() {
+                classificationResult.style.display = 'block';
+                
+                // Simulate adding to priority queue
+                const queueTable = document.querySelector('.queue-table tbody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td><span class="priority-indicator priority-1"></span> Critical</td>
+                    <td>P-1025</td>
+                    <td>Heart Attack</td>
+                    <td>654 Cedar Rd</td>
+                    <td>0 min</td>
+                    <td><button class="btn btn-primary">Dispatch</button></td>
+                `;
+                queueTable.insertBefore(newRow, queueTable.firstChild);
+            });
+            
+            // Add dispatch functionality to all buttons
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.textContent === 'Dispatch') {
+                    e.target.textContent = 'Dispatched';
+                    e.target.classList.remove('btn-primary');
+                    e.target.classList.add('btn-success');
+                    e.target.disabled = true;
+                    
+                    // Find the closest ambulance with Available status and update it
+                    const availableAmbulances = document.querySelectorAll('.status-available');
+                    if (availableAmbulances.length > 0) {
+                        availableAmbulances[0].textContent = 'Dispatched';
+                        availableAmbulances[0].className = 'ambulance-status status-dispatched';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
